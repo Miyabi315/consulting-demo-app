@@ -1,6 +1,8 @@
 streamlit
 openai
-pandas
-pypdf
-requests
 python-dotenv
+pandas
+PyPDF2
+openpyxl
+requests
+googlesearch-python
