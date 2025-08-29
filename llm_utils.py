@@ -16,13 +16,13 @@ def call_llm(prompt: str, temperature: float = 0.7) -> str:
 # ---------- 内部要約 ----------
 def summarize_internal(text: str) -> str:
     prompt = f"""
-次の内部データを要約してください。
+次のデータを要約してください。
 - 数字や事実は保持
 - 重要な詳細も含める
 - 出力は5〜8行程度
 - 箇条書きまたは段落形式で記述
 
-内部データ:
+データ:
 {text}
 """
     return call_llm(prompt, temperature=0.3)
@@ -31,18 +31,18 @@ def summarize_internal(text: str) -> str:
 # ---------- 課題抽出 ----------
 def derive_issues(internal_summary: str, external_summary: str) -> str:
     prompt = f"""
-次の情報から課題を整理してください。外部要約がない場合は、内部要約に基づく課題のみを抽出してください。
+次の情報から課題を整理してください。業界情報がない場合は、IBPデータに基づく課題のみを抽出してください。
 
-[内部要約]
+[IBPデータ]
 {internal_summary}
 
-[外部要約]
+[業界情報]
 {external_summary}
 
 分類:
-1. 内部要約に基づく課題
-2. 外部要約に基づく課題
-3. 内外比較から導かれる課題（差分・矛盾・不足）
+1. IBPデータに基づく課題
+2. 業界情報に基づく課題
+3. 1.2の比較から導かれる課題（差分・矛盾・不足）
 
 各項目ごとに2〜3行で簡潔にまとめてください。
 """
@@ -70,22 +70,25 @@ def generate_proposals(issues: str, category: str = "すべて") -> str:
 
 
 # ---------- Judge（矛盾検出） ----------
-def judge_consistency(proposals: str, internal_summary: str, external_summary: str = "") -> str:
+def review_proposals(proposals: str, internal_summary: str, external_summary: str = "", extra_input="") -> str:
     prompt = f"""
-以下の施策案が、内部データや外部情報と矛盾していないか確認してください。
+以下の施策案が、IBPデータや業界情報などを元にレビューしてください。また、全体のリスクをまとめてください。
 
 [施策案]
 {proposals}
 
-[内部要約]
+[IBPデータ]
 {internal_summary}
 
-[外部要約]
+[業界情報]
 {external_summary}
 
+[追加条件（ユーザー入力）]
+{extra_input}
+
 出力形式:
-- 矛盾があれば指摘と改善方向性
-- なければ「大きな矛盾はありません」と記述、提案として弱い点があれば指摘
+- 各施策案ごとに良い点と改善点を一文ずつ
+- 全体のリスクを2〜3行で
 """
     return call_llm(prompt, temperature=0.3)
 
@@ -93,7 +96,7 @@ def judge_consistency(proposals: str, internal_summary: str, external_summary: s
 # ---------- 施策修正（Judge反映） ----------
 def refine_proposals(proposals: str, judge_feedback: str, internal_summary: str, external_summary: str) -> str:
     prompt = f"""
-以下の施策案を、Judgeの指摘を踏まえて修正してください。
+以下の施策案を、レビューの指摘を踏まえて修正してください。
 
 [現在の施策案]
 {proposals}
@@ -117,12 +120,12 @@ def refine_proposals(proposals: str, judge_feedback: str, internal_summary: str,
 # ---------- スライド骨子 ----------
 def build_slide_markdown(internal_summary: str, external_summary: str, issues: str, proposals: str, judge: str) -> str:
     prompt = f"""
-次の情報をもとに、Markdown形式の提案スライド骨子を作成してください。
+次の情報をもとに、Markdown形式の提案スライド骨子を作成してください。業界情報がない場合は省略してください。
 
-[内部要約]
+[IBPデータ]
 {internal_summary}
 
-[外部要約]
+[業界情報]
 {external_summary}
 
 [課題]
@@ -134,9 +137,9 @@ def build_slide_markdown(internal_summary: str, external_summary: str, issues: s
 スライド構成:
 # 提案資料タイトル
 ## 課題整理
-- 内部
-- 外部
-- 内外比較
+- IBPデータ
+- 業界情報
+- IBPと業界の比較からの課題
 
 ## 提案施策
 - 案1
