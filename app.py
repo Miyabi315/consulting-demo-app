@@ -49,7 +49,7 @@ def init_state():
         "executed_queries": [],
         "search_results": None,
         "issues": None,
-        "proposal_category": "すべて",
+        "proposal_category": "おすすめ（AIが選びます）",
         "proposals": None,
         "judge": None,
         "slides": None,
