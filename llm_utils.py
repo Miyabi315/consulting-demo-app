@@ -31,7 +31,7 @@ def summarize_internal(text: str) -> str:
 # ---------- 課題抽出 ----------
 def derive_issues(internal_summary: str, external_summary: str) -> str:
     prompt = f"""
-次の情報から課題を整理してください。業界情報がない場合は、IBPデータに基づく課題のみを抽出してください。
+次の情報から課題を整理してください。業界情報がない場合は、IBPデータに基づく課題のみを抽出してください。データ数が少ない場合、データ数が少ないことを課題にしないでください。
 
 [IBPデータ]
 {internal_summary}
@@ -72,6 +72,7 @@ def generate_proposals(issues: str, category: str = "すべて") -> str:
 # ---------- Judge（矛盾検出） ----------
 def review_proposals(proposals: str, internal_summary: str, external_summary: str = "", extra_input="") -> str:
     prompt = f"""
+あなたは優秀なコンサルタントです。部下が作成した提案をレビューします。
 以下の施策案が、IBPデータや業界情報などを元にレビューしてください。また、全体のリスクをまとめてください。
 
 [施策案]
@@ -87,6 +88,7 @@ def review_proposals(proposals: str, internal_summary: str, external_summary: st
 {extra_input}
 
 出力形式:
+- ペルソナの設定は出さず、回答だけを出力せよ
 - 各施策案ごとに良い点と改善点を一文ずつ
 - 全体のリスクを2〜3行で
 """
