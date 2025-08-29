@@ -202,7 +202,7 @@ with st.container():
     st.session_state.proposal_category = st.radio(
         "カテゴリを選択",
         ["保守", "拡大", "撤退", "おすすめ（AIが選びます）"],
-        index=["保守", "拡大", "撤退", "おすすめ"].index(st.session_state.proposal_category),
+        index=["保守", "拡大", "撤退", "おすすめ（AIが選びます）"].index(st.session_state.proposal_category),
     )
     if st.button("提案アイデアを生成", disabled=not bool(st.session_state.issues)):
         with st.spinner("生成中..."):
